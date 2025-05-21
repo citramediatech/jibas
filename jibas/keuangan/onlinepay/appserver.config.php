@@ -1,0 +1,4 @@
+<?php
+$JS_SERVER_ADDR = "192.168.1.30";
+$JS_SERVER_PORT = "8105";
+?>
