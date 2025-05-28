@@ -1,226 +1,178 @@
-<?
-/**[N]**
- * JIBAS Education Community
- * Jaringan Informasi Bersama Antar Sekolah
- * 
- * @version: 32.0 (Feb 05, 2025)
- * @notes: 
- * 
- * Copyright (C) 2024 JIBAS (http://www.jibas.net)
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- **[N]**/ ?>
-<?
+<?php
 require_once('../include/sessioninfo.php');
 require_once('../include/db_functions.php');
-require_once('../include/sessioninfo.php');
 require_once('../include/common.php');
 require_once('../include/config.php');
 require_once('../cek.php');
 
 OpenDb();
 
-$op = "";
-if (isset($_REQUEST['op']))
-	$op = $_REQUEST['op'];
+$op = $_REQUEST['op'] ?? "";
 
-if ($op == "dw8dxn8w9ms8zs22") 
-{
-	$sql = "UPDATE departemen SET aktif = '$_REQUEST[newaktif]' WHERE replid = '$_REQUEST[replid]' ";
-	QueryDb($sql);
-} 
-
-if ($op == "xm8r389xemx23xb2378e23") 
-{
-	$sql = "DELETE FROM jbsakad.departemen WHERE replid = '$_REQUEST[replid]'";
-	$result = QueryDb($sql);
+if ($op == "dw8dxn8w9ms8zs22") {
+    $newaktif = $_REQUEST['newaktif'];
+    $replid = $_REQUEST['replid'];
+    $sql = "UPDATE departemen SET aktif = '$newaktif' WHERE replid = '$replid'";
+    QueryDb($sql);
+} elseif ($op == "xm8r389xemx23xb2378e23") {
+    $replid = $_REQUEST['replid'];
+    $sql = "DELETE FROM jbsakad.departemen WHERE replid = '$replid'";
+    QueryDb($sql);
 }
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
-<link rel="stylesheet" type="text/css" href="../style/style.css">
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Untitled Document</title>
-<link rel="stylesheet" type="text/css" href="../style/tooltips.css">
-<script language="javascript" src="../script/tooltips.js"></script>
-<script language="javascript" src="../script/tables.js"></script>
-<script language="javascript" src="../script/tools.js"></script>
-<script language="javascript">
-function tambah() 
-{
-	newWindow('departemen_add.php', 'TambahDepartemen','505','308','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
+    <title>Departemen</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <link rel="stylesheet" type="text/css" href="../style/tooltips.css">
+    <script src="../script/tooltips.js"></script>
+    <script src="../script/tables.js"></script>
+    <script src="../script/tools.js"></script>
+    <script>
+    function tambah() {
+        newWindow('departemen_add.php', 'TambahDepartemen', '505', '308', 'resizable=1,scrollbars=1,status=0,toolbar=0');
+    }
 
-function refresh() 
-{
-	document.location.href = "departemen.php";
-}
+    function refresh() {
+        location.href = "departemen.php";
+    }
 
-function setaktif(replid, aktif) 
-{
-	var msg;
-	var newaktif;
-	
-	if (aktif == 1) 
-	{
-		msg = "Apakah anda yakin akan mengubah departemen ini menjadi TIDAK AKTIF?";
-		newaktif = 0;
-	} 
-	else	
-	{	
-		msg = "Apakah anda yakin akan mengubah departemen ini menjadi AKTIF?";
-		newaktif = 1;
-	}
-	
-	if (confirm(msg)) 
-		document.location.href = "departemen.php?op=dw8dxn8w9ms8zs22&replid="+replid+"&newaktif="+newaktif;
-}
+    function setaktif(replid, aktif) {
+        let msg = aktif == 1 ?
+            "Apakah anda yakin akan mengubah departemen ini menjadi TIDAK AKTIF?" :
+            "Apakah anda yakin akan mengubah departemen ini menjadi AKTIF?";
+        let newaktif = aktif == 1 ? 0 : 1;
 
-function edit(replid) 
-{
-	newWindow('departemen_edit.php?replid='+replid, 'UbahDepartemen','505','308','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
+        if (confirm(msg)) {
+            location.href = `departemen.php?op=dw8dxn8w9ms8zs22&replid=${replid}&newaktif=${newaktif}`;
+        }
+    }
 
-function hapus(replid) 
-{
-	if (confirm("Apakah anda yakin akan menghapus departemen ini?"))
-		document.location.href = "departemen.php?op=xm8r389xemx23xb2378e23&replid="+replid;
-}
+    function edit(replid) {
+        newWindow(`departemen_edit.php?replid=${replid}`, 'UbahDepartemen', '505', '308', 'resizable=1,scrollbars=1,status=0,toolbar=0');
+    }
 
-function cetak() 
-{
-	newWindow('departemen_cetak.php', 'CetakDepartemen','790','650','resizable=1,scrollbars=1,status=0,toolbar=0')
-}
-</script>
-</head>
+    function hapus(replid) {
+        if (confirm("Apakah anda yakin akan menghapus departemen ini?")) {
+            location.href = `departemen.php?op=xm8r389xemx23xb2378e23&replid=${replid}`;
+        }
+    }
 
-<body>
-
-<table border="0" width="100%" height="100%">
-<!-- TABLE BACKGROUND IMAGE -->
-<tr><td align="center" valign="top" background="../images/b_departemen.png" style="margin:0;padding:0;background-repeat:no-repeat;">
-
-<table border="0" width="100%" align="center">
-<!-- TABLE CENTER -->
-<tr height="300">
-  <td align="left" valign="top">
-
-	<table border="0"width="95%" align="center">
-    <tr>
-        <td align="right"><font size="4" face="Verdana, Arial, Helvetica, sans-serif" style="background-color:#ffcc66">&nbsp;</font>&nbsp;<font size="4" face="Verdana, Arial, Helvetica, sans-serif" color="Gray">Departemen</font></td>
-    </tr>
-    <tr>
-        <td align="right"><a href="../referensi.php" target="content">
-          <font size="1" face="Verdana" color="#000000"><b>Referensi</b></font></a>&nbsp>&nbsp <font size="1" face="Verdana" color="#000000"><b>Departemen</b></font>
-        </td>
-    </tr>
-     <tr>
-      <td align="left">&nbsp;</td>
-      </tr>
-	</table>
-	<br /><br />
-<?	$sql = "SELECT d.replid,d.departemen,d.nipkepsek,p.nama,d.keterangan,d.aktif 
-			FROM departemen d, jbssdm.pegawai p 
-			WHERE d.nipkepsek = p.nip ORDER BY d.urutan";
-	$result = QueryDb($sql);
-	if (@mysqli_num_rows($result) > 0)
-	{	?>
-    <table border="0" cellpadding="0" cellspacing="0" width="95%" align="center">
-    <!-- TABLE CONTENT -->
-    <tr><td align="right">
-    
-    <a href="#" onClick="refresh()"><img src="../images/ico/refresh.png" border="0" onMouseOver="showhint('Refresh!', this, event, '50px')"/>&nbsp;Refresh</a>&nbsp;&nbsp;
-    <a href="JavaScript:cetak()"><img src="../images/ico/print.png" border="0" onMouseOver="showhint('Cetak!', this, event, '50px')" />&nbsp;Cetak</a>&nbsp;&nbsp;    
-<?	if (SI_USER_LEVEL() != $SI_USER_STAFF) 
-	{ ?>
-	    <a href="JavaScript:tambah()"><img src="../images/ico/tambah.png" border="0" onMouseOver="showhint('Tambah!', this, event, '50px')" />&nbsp;Tambah Departemen</a>
-<?	} ?>    
-    </td></tr>
-    </table><br />
-    <table class="tab" id="table" border="1" style="border-collapse:collapse" width="95%" align="center" bordercolor="#000000">
-    <tr height="30">
-    	<td width="4%" class="header" align="center">No</td>
-        <td width="15%" class="header" align="center">Departemen</td>
-        <td width="*" class="header" align="center">Kepala Sekolah</td>
-        <td width="*" class="header" align="center">Keterangan</td>
-        <td width="10%" class="header" align="center">Status</td>
-        <?	if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
-        <td width="8%" class="header">&nbsp;</td>
-        <?	} ?>
-    </tr>
-<? 	$cnt = 0;
-	while ($row = mysqli_fetch_row($result))
-	{ ?>
-    <tr height="25">
-    	<td align="center"><?=++$cnt ?></td>
-        <td><?=$row[1] ?></td>
-        <td><?=$row[2] . " - " . $row[3] ?></td>
-        <td><?=$row[4] ?></td>
-        <td align="center">
-        
-<?		if (SI_USER_LEVEL() == $SI_USER_STAFF) {  
-			if ($row[5] == 1) { ?> 
-            	<img src="../images/ico/aktif.png" border="0" onMouseOver="showhint('Status Aktif!', this, event, '80px')"/>
-<?			} else { ?>                
-				<img src="../images/ico/nonaktif.png" border="0" onMouseOver="showhint('Status Tidak Aktif!', this, event, '80px')"/>
-<?			}
-		} else { 
-			if ($row[5] == 1) { ?>
-				<a href="JavaScript:setaktif(<?=$row[0] ?>, <?=$row[5] ?>)"><img src="../images/ico/aktif.png" border="0" onMouseOver="showhint('Status Aktif!', this, event, '80px')"/></a>
-<?			} else { ?>
-				<a href="JavaScript:setaktif(<?=$row[0] ?>, <?=$row[5] ?>)"><img src="../images/ico/nonaktif.png" border="0" onMouseOver="showhint('Status Tidak Aktif!', this, event, '80px')"/></a>
-<?			} //end if
-		} //end if ?>        
-        
-        </td>
-<?		if (SI_USER_LEVEL() != $SI_USER_STAFF) {  ?>         
-		<td align="center">
-            <a href="JavaScript:edit(<?=$row[0] ?>)"><img src="../images/ico/ubah.png" border="0" onMouseOver="showhint('Ubah Departemen!', this, event, '80px')" /></a>&nbsp;
-            <a href="JavaScript:hapus(<?=$row[0] ?>)"><img src="../images/ico/hapus.png" border="0" onMouseOver="showhint('Hapus Departemen!', this, event, '80px')"/></a>
-        </td>
-<?		} ?>  
-    </tr>
-<?	} ?>
-    <!-- END TABLE CONTENT -->
-    </table>
-    <script language='JavaScript'>
-	    Tables('table', 1, 0);
+    function cetak() {
+        newWindow('departemen_cetak.php', 'CetakDepartemen', '790', '650', 'resizable=1,scrollbars=1,status=0,toolbar=0');
+    }
     </script>
-
-	</td></tr>
-<!-- END TABLE CENTER -->    
-</table>
-<?	} else { ?>
-
-<table width="100%" border="0" align="center">
-
+</head>
+<body>
+<table width="100%" height="100%" border="0">
 <tr>
-	<td align="center" valign="middle" height="250" colspan="2">
-    	<font size = "2" color ="red"><b>Tidak ditemukan adanya data.
-       <? if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
-        <br />Klik &nbsp;<a href="JavaScript:tambah()" ><font size = "2" color ="green">di sini</font></a>&nbsp;untuk mengisi data baru.
-        <? } ?>
-        </p></b></font>
-	</td>
-</tr>
-</table>  
-<? } ?> 
-</td></tr>
-<!-- END TABLE BACKGROUND IMAGE -->
-</table>    
+    <td align="center" valign="top" background="../images/b_departemen.png" style="background-repeat:no-repeat;">
+    <table width="100%" align="center">
+        <tr height="300">
+            <td valign="top">
 
+                <table width="95%" align="center">
+                    <tr>
+                        <td align="right"><font size="4" color="gray"><b>Departemen</b></font></td>
+                    </tr>
+                    <tr>
+                        <td align="right">
+                            <a href="../referensi.php" target="content"><font size="1"><b>Referensi</b></font></a> &gt;
+                            <font size="1"><b>Departemen</b></font>
+                        </td>
+                    </tr>
+                </table><br /><br />
+
+                <table width="95%" align="center">
+                    <tr>
+                        <td align="right">
+                            <a href="#" onclick="refresh()"><img src="../images/ico/refresh.png" border="0" /> Refresh</a>&nbsp;&nbsp;
+                            <a href="javascript:cetak()"><img src="../images/ico/print.png" border="0" /> Cetak</a>&nbsp;&nbsp;
+                            <?php if (SI_USER_LEVEL() != $SI_USER_STAFF): ?>
+                                <a href="javascript:tambah()"><img src="../images/ico/tambah.png" border="0" /> Tambah Departemen</a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                </table><br />
+
+                <table class="tab" id="table" width="95%" align="center" border="1" style="border-collapse:collapse" bordercolor="#000000">
+                    <tr height="30">
+                        <th>No</th>
+                        <th>Kode Departemen</th>
+                        <th>Nama Lembaga</th>
+                        <th>Kepala Sekolah</th>
+                        <th>Keterangan</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                <?php
+                $no = 0;
+                $query = "SELECT * FROM jbsakad.departemen ORDER BY replid";
+                $res = QueryDb($query);
+
+                if (mysqli_num_rows($res) > 0) {
+                    while ($data = mysqli_fetch_array($res)) {
+                        $no++;
+
+                        // Kepala sekolah
+                        $namaKepsek = '-';
+                        if ($data['nipkepsek'] != "") {
+                            $sqlKepsek = "SELECT nama FROM jbssdm.pegawai WHERE nip = '" . $data['nipkepsek'] . "'";
+                            $resKepsek = QueryDb($sqlKepsek);
+                            if (mysqli_num_rows($resKepsek) > 0) {
+                                $rowKepsek = mysqli_fetch_assoc($resKepsek);
+                                $namaKepsek = $rowKepsek['nama'];
+                            }
+                        }
+
+                        // Nama lembaga
+                        $namaLembaga = '-';
+                        $sqlLembaga = "SELECT nama FROM jbsumum.identitas WHERE id_departemen = '" . $data['replid'] . "'";
+                        $resLembaga = QueryDb($sqlLembaga);
+                        if (mysqli_num_rows($resLembaga) > 0) {
+                            $rowLembaga = mysqli_fetch_assoc($resLembaga);
+                            $namaLembaga = $rowLembaga['nama'];
+                        }
+
+                        echo "<tr height='25'>
+                            <td align='center'>{$no}</td>
+                            <td>{$data['departemen']}</td>
+                            <td>{$namaLembaga}</td>
+                            <td>{$namaKepsek}</td>
+                            <td>{$data['keterangan']}</td>
+                            <td align='center'>
+                                <a href=\"javascript:setaktif({$data['replid']}, {$data['aktif']})\">
+                                    <img src=\"../images/ico/" . ($data['aktif'] == 1 ? 'aktif' : 'nonaktif') . ".png\" />
+                                </a>
+                            </td>
+                            <td align='center'>
+                                <a href=\"javascript:edit({$data['replid']})\"><img src=\"../images/ico/ubah.png\" /></a>&nbsp;
+                                <a href=\"javascript:hapus({$data['replid']})\"><img src=\"../images/ico/hapus.png\" /></a>
+                            </td>
+                        </tr>";
+                    }
+                } else {
+                    echo "<tr><td colspan='7' align='center' height='250'>
+                        <font color='red'><b>Tidak ditemukan adanya data.</b></font><br />";
+                    if (SI_USER_LEVEL() != $SI_USER_STAFF) {
+                        echo "Klik <a href='javascript:tambah()'><font color='green'>di sini</font></a> untuk mengisi data baru.";
+                    }
+                    echo "</td></tr>";
+                }
+                ?>
+                </table>
+
+                <script>Tables('table', 1, 0);</script>
+
+            </td>
+        </tr>
+    </table>
+    </td>
+</tr>
+</table>
 </body>
 </html>
-<? CloseDb();?>
+<?php CloseDb(); ?>
