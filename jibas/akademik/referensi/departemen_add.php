@@ -20,7 +20,12 @@
  * 
  * You should have received a copy of the GNU General Public License
  **[N]**/ ?>
-<?
+<?php
+/**
+ * JIBAS Education Community
+ * ...
+ */
+
 require_once('../include/errorhandler.php');
 require_once('../include/sessioninfo.php');
 require_once('../include/common.php');
@@ -29,65 +34,64 @@ require_once('../include/db_functions.php');
 require_once('../include/theme.php'); 
 require_once('../cek.php');
 
-if (isset($_REQUEST['departemen']))
-	$departemen = CQ($_REQUEST['departemen']);
-
-if (isset($_REQUEST['urutan']))
-	$urutan = $_REQUEST['urutan'];
-	
-if (isset($_REQUEST['nipkepsek']))
-	$nipkepsek = $_REQUEST['nipkepsek'];
-
-if (isset($_REQUEST['namakepsek']))
-	$namakepsek = $_REQUEST['namakepsek'];	
-
-if (isset($_REQUEST['keterangan']))
-	$keterangan = CQ($_REQUEST['keterangan']);	
+$departemen = isset($_REQUEST['departemen']) ? CQ($_REQUEST['departemen']) : '';
+$idYayasan  = $_REQUEST ['id_yayasan'] ?? '';
+$urutan = $_REQUEST['urutan'] ?? '';
+$nipkepsek = $_REQUEST['nipkepsek'] ?? '';
+$namakepsek = $_REQUEST['namakepsek'] ?? '';
+$keterangan = isset($_REQUEST['keterangan']) ? CQ($_REQUEST['keterangan']) : '';
 
 $cek = 0;
 $ERROR_MSG = "";
-if (isset($_REQUEST['Simpan'])) {
-	OpenDb();
-	$sql = "SELECT * FROM departemen WHERE departemen = '$departemen'";
-	$result = QueryDb($sql);
-	
-	$sql1 = "SELECT * FROM departemen WHERE urutan = '$urutan'";
-	$result1 = QueryDb($sql1);
-	
-	if (mysqli_num_rows($result) > 0) {
-		CloseDb();
-		$ERROR_MSG = "Departemen $departemen sudah digunakan!";	
-		$cek = 0;	
-	} else if (mysqli_num_rows($result1) > 0) {
-		CloseDb();
-		$ERROR_MSG = "Urutan $urutan sudah digunakan!";
-		$cek = 2;
-		
-	} else {
-		$departemen = str_replace("'", "`", $departemen);
-		$sql = "INSERT INTO departemen SET departemen='$departemen',nipkepsek='$nipkepsek',urutan='$urutan',keterangan='$keterangan'";
-		//echo $sql;
-		$result = QueryDb($sql);
-		if ($result) { ?>
-			<script language="javascript">				
-				opener.refresh();
-				window.close();
-			</script> 
-<?		}
-	}
-	CloseDb();
-}
 
+if (isset($_REQUEST['Simpan'])) {
+    OpenDb();
+    $sql = "SELECT * FROM departemen WHERE departemen = '$departemen'";
+    $result = QueryDb($sql);
+
+    $sql1 = "SELECT * FROM departemen WHERE urutan = '$urutan'";
+    $result1 = QueryDb($sql1);
+
+    if (mysqli_num_rows($result) > 0) {
+        CloseDb();
+        $ERROR_MSG = "Departemen $departemen sudah digunakan!";
+        $cek = 0;
+    } else if (mysqli_num_rows($result1) > 0) {
+        CloseDb();
+        $ERROR_MSG = "Urutan $urutan sudah digunakan!";
+        $cek = 2;
+    } else {
+        $departemen = str_replace("'", "`", $departemen);
+        $sql = "INSERT INTO departemen SET departemen='$departemen',id_yayasan='$idYayasan',nipkepsek='$nipkepsek',urutan='$urutan',keterangan='$keterangan'";
+        $result = QueryDb($sql);
+        if ($result) {
+            echo "<script>
+                opener.refresh();
+                window.close();
+            </script>";
+            exit;
+        }
+    }
+    CloseDb();
+}
 
 switch ($cek) {
-	case 0 : $input_awal = "onload=\"document.getElementById('departemen').focus()\"";
-		break;
-	case 1 : $input_awal = "onload=\"document.getElementById('nip').focus()\"";
-		break;
-	case 2 : $input_awal = "onload=\"document.getElementById('urutan').focus()\"";
-		break;
+    case 0: $input_awal = "onload=\"document.getElementById('departemen').focus()\""; break;
+    case 1: $input_awal = "onload=\"document.getElementById('nip').focus()\""; break;
+    case 2: $input_awal = "onload=\"document.getElementById('urutan').focus()\""; break;
+    default: $input_awal = "";
 }
+
+OpenDb();
+$yayasan = "SELECT * FROM yayasan WHERE id = 1";
+$result = QueryDb($yayasan);
+$id_yayasan = "";
+if ($row = mysqli_fetch_assoc($result)) {
+    $id_yayasan = $row['id'];
+}
+CloseDb();
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -180,10 +184,19 @@ function panggil(elem)
 <table border="0" width="95%" cellpadding="2" cellspacing="2" align="center">
 <!-- TABLE CONTENT -->
 <tr>
-	<td width="120"><strong>Departemen</strong></td>
+    <td width="120"><strong>Departemen</strong></td>
+    <td>
+        <input type="text" name="departemen" id="departemen" size="10" maxlength="15"
+            value="<?= htmlspecialchars($departemen) ?>"
+            onFocus="showhint('Nama departemen tidak boleh lebih dari 50 karakter!', this, event, '120px');panggil('departemen')"
+            onKeyPress="return focusNext('nip', event)" />
+    </td>
 	<td>
-    	<input type="text" name="departemen" id="departemen" size="10" maxlength="15" value="<?=$departemen ?>" onFocus="showhint('Nama departemen tidak boleh lebih dari 50 karakter!', this, event, '120px');panggil('departemen')" onKeyPress="return focusNext('nip', event)"/></td>
+        <input type="text" name="id_yayasan" id="id_yayasan" size="10" maxlength="15"
+            value="<?= htmlspecialchars($id_yayasan) ?>" hidden />
+    </td>
 </tr>
+
 <tr>
     <td><strong>Kepala Sekolah</strong></td>
     <td><input type="text" class="disabled" name="nip" id="nip" size="10" value="<?=$nipkepsek ?>" readonly onClick="caripegawai()" onKeyPress="caripegawai();" onFocus="panggil('nip')"/>

@@ -101,7 +101,7 @@ if ($op == "dw8dxn8w9ms8zs22") {
                 <table class="tab" id="table" width="95%" align="center" border="1" style="border-collapse:collapse" bordercolor="#000000">
                     <tr height="30">
                         <th>No</th>
-                        <th>Kode Departemen</th>
+                        <th>Kode Sekolah</th>
                         <th>Nama Lembaga</th>
                         <th>Kepala Sekolah</th>
                         <th>Keterangan</th>

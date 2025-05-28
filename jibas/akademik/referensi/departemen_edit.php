@@ -200,6 +200,7 @@ function panggil(elem){
 <!-- TABLE CONTENT -->
 <tr>
 	<td width="120"><strong>Departemen</strong></td>
+	
 	<td>
     	<input type="text" name="departemen" id="departemen" size="10" maxlength="15" value="<?=$departemen ?>" onFocus="showhint('Nama departemen tidak boleh lebih dari 50 karakter!', this, event, '120px');panggil('departemen')"  onKeyPress="return focusNext('nip', event)"/>
     </td>
