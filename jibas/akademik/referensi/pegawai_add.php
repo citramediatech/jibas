@@ -20,7 +20,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  **[N]**/ ?>
-<?
+<?php
 require_once("../include/theme.php");
 require_once('../include/errorhandler.php');
 require_once('../include/db_functions.php');
@@ -29,71 +29,38 @@ require_once('../include/common.php');
 require_once('../include/config.php');
 require_once('../include/imageresizer.php');
 require_once('../cek.php');
- 
+
 OpenDb(); 
 
 $bagian = $_REQUEST["bagian"];
-$nip = "";
-if (isset($_REQUEST['nip']))
-	$nip = CQ($_REQUEST['nip']);
-$nama = "";
-if (isset($_REQUEST['nama']))
-	$nama = CQ($_REQUEST['nama']);
-$gelarawal = "";
-if (isset($_REQUEST['gelarawal']))
-	$gelarawal = CQ($_REQUEST['gelarawal']);
-$gelarakhir = "";
-if (isset($_REQUEST['gelarakhir']))
-	$gelarakhir = CQ($_REQUEST['gelarakhir']);
-$panggilan = "";
-if (isset($_REQUEST['panggilan']))
-	$panggilan = CQ($_REQUEST['panggilan']);
-$kelamin = "l";
-if (isset($_REQUEST['kelamin']))
-	$kelamin = $_REQUEST['kelamin'];
-$tempatlahir = "";
-if (isset($_REQUEST['tempatlahir']))
-	$tempatlahir = CQ($_REQUEST['tempatlahir']);
-if (isset($_REQUEST['tgllahir']))
-	$tgllahir = (int)$_REQUEST['tgllahir'];
-if (isset($_REQUEST['blnlahir']))
-	$blnlahir = $_REQUEST['blnlahir'];
-if (isset($_REQUEST['thnlahir']))
-	$thnlahir = $_REQUEST['thnlahir'];
-$agama = "";
-if (isset($_REQUEST['agama']))
-	$agama = $_REQUEST['agama'];
-$suku = "";
-if (isset($_REQUEST['suku']))
-	$suku = $_REQUEST['suku'];
-$menikah = "";	
-if (isset($_REQUEST['menikah']))
-	$menikah = $_REQUEST['menikah'];
-$identitas = "";
-if (isset($_REQUEST['identitas']))
-	$identitas = CQ($_REQUEST['identitas']);
-$alamat = "";
-if (isset($_REQUEST['alamat']))
-	$alamat = CQ($_REQUEST['alamat']);
-$telpon = "";
-if (isset($_REQUEST['telpon']))
-	$telpon = CQ($_REQUEST['telpon']);
-$handphone = "";
-if (isset($_REQUEST['handphone']))
-	$handphone = $_REQUEST['handphone'];
-	$handphone=trim($_REQUEST['handphone']);
-    $handphone=str_replace(' ','',CQ($handphone));
-$email = "";
-if (isset($_REQUEST['email']))
-	$email = CQ($_REQUEST['email']);
+$nip = isset($_REQUEST['nip']) ? CQ($_REQUEST['nip']) : "";
+$id_lembaga = isset($_REQUEST['id_lembaga']) ? CQ($_REQUEST['id_lembaga']) : "";
+$nama = isset($_REQUEST['nama']) ? CQ($_REQUEST['nama']) : "";
+$gelarawal = isset($_REQUEST['gelarawal']) ? CQ($_REQUEST['gelarawal']) : "";
+$gelarakhir = isset($_REQUEST['gelarakhir']) ? CQ($_REQUEST['gelarakhir']) : "";
+$panggilan = isset($_REQUEST['panggilan']) ? CQ($_REQUEST['panggilan']) : "";
+$kelamin = isset($_REQUEST['kelamin']) ? $_REQUEST['kelamin'] : "l";
+$tempatlahir = isset($_REQUEST['tempatlahir']) ? CQ($_REQUEST['tempatlahir']) : "";
 
-$keterangan = "";
-if (isset($_REQUEST['keterangan']))
-	$keterangan = CQ($_REQUEST['keterangan']);
+$tgllahir = isset($_REQUEST['tgllahir']) ? (int)$_REQUEST['tgllahir'] : 1;
+$blnlahir = isset($_REQUEST['blnlahir']) ? $_REQUEST['blnlahir'] : 1;
+$thnlahir = isset($_REQUEST['thnlahir']) ? $_REQUEST['thnlahir'] : 2000;
+
+$agama = isset($_REQUEST['agama']) ? $_REQUEST['agama'] : "";
+$suku = isset($_REQUEST['suku']) ? $_REQUEST['suku'] : "";
+$menikah = isset($_REQUEST['menikah']) ? $_REQUEST['menikah'] : "";
+$identitas = isset($_REQUEST['identitas']) ? CQ($_REQUEST['identitas']) : "";
+$alamat = isset($_REQUEST['alamat']) ? CQ($_REQUEST['alamat']) : "";
+$telpon = isset($_REQUEST['telpon']) ? CQ($_REQUEST['telpon']) : "";
+$handphone = isset($_REQUEST['handphone']) ? $_REQUEST['handphone'] : "";
+$handphone = trim(str_replace(" ", "", CQ($handphone)));
+$email = isset($_REQUEST['email']) ? CQ($_REQUEST['email']) : "";
+$keterangan = isset($_REQUEST['keterangan']) ? CQ($_REQUEST['keterangan']) : "";
 
 $n = JmlHari($blnlahir, $thnlahir);	
 
 $ERROR_MSG = "";
+
 if (isset($_REQUEST['simpan'])) 
 {
 	$pin = random(5);	
@@ -101,12 +68,12 @@ if (isset($_REQUEST['simpan']))
 	$uploadedfile = $foto['tmp_name'];
 	$uploadedtypefile = $foto['type'];
 	$uploadedsizefile = $foto['size'];
-	
+	$gantifoto = "";
+
 	if (strlen($uploadedfile) != 0)
 	{
 		$tmp_path = realpath(".") . "/../../temp";
-		$tmp_exists = file_exists($tmp_path) && is_dir($tmp_path);
-		if (!$tmp_exists)
+		if (!file_exists($tmp_path) || !is_dir($tmp_path))
 			mkdir($tmp_path, 0755);
 		
 		$filename = "$tmp_path/ad-peg-tmp.jpg";
@@ -117,54 +84,56 @@ if (isset($_REQUEST['simpan']))
 		fclose($fh);
 		
 		$gantifoto = ", foto='$foto_data'";
-	} 
-	else 
-	{
-		$gantifoto="";
 	}
 	
-	$lahir = $thnlahir."-".$blnlahir."-".$tgllahir;
+	$lahir = "$thnlahir-$blnlahir-$tgllahir";
 	
 	$query_cek = "SELECT * FROM jbssdm.pegawai WHERE nip = '$nip'";
 	$result_cek = QueryDb($query_cek);
 	$num_cek = @mysqli_num_rows($result_cek);
-	if($num_cek > 0) 
+
+	if ($num_cek > 0) 
 	{
-		//CloseDb();
-		$ERROR_MSG = "NIP ".$nip." sudah digunakan!";
+		$ERROR_MSG = "NIP $nip sudah digunakan!";
 	} 
 	else 
 	{
 		$nama = str_replace("'", "`", $nama);
-		$query = "INSERT INTO jbssdm.pegawai SET nip='$nip', nama='$nama', gelarawal='$gelarawal', gelarakhir='$gelarakhir', panggilan='$panggilan', 
-				  tmplahir='$tempatlahir', tgllahir='$lahir', agama='$agama', suku='$suku',nikah='$menikah', noid='$identitas',
-				  alamat='$alamat',telpon='$telpon',handphone='$handphone',email='$email', bagian='$bagian', keterangan='$keterangan', 
-				  aktif='1', kelamin='$kelamin', pinpegawai='$pin' $gantifoto";
-    	//echo $query; exit;
-		$result = QueryDb($query) ;
+		$query = "INSERT INTO jbssdm.pegawai SET nip='$nip', id_lembaga='$id_lembaga', nama='$nama', gelarawal='$gelarawal', gelarakhir='$gelarakhir', 
+				  panggilan='$panggilan', tmplahir='$tempatlahir', tgllahir='$lahir', agama='$agama', suku='$suku', nikah='$menikah', 
+				  noid='$identitas', alamat='$alamat', telpon='$telpon', handphone='$handphone', email='$email', 
+				  bagian='$bagian', keterangan='$keterangan', aktif='1', kelamin='$kelamin', pinpegawai='$pin' $gantifoto";
+
+		$result = QueryDb($query);
 
 		if ($gantifoto != "")
-        {
-            $sql = "INSERT INTO jbsakad.riwayatfoto SET nip = '$nip', foto = '$foto_data', tanggal = NOW()";
-            QueryDbTrans($sql, $success);
-        }
+		{
+			$success = true;
+			$sql = "INSERT INTO jbsakad.riwayatfoto SET nip = '$nip', foto = '$foto_data', tanggal = NOW()";
+			QueryDbTrans($sql, $success);
+		}
 
-		if($result) 
-		{       ?>
-        <script language="JavaScript">
-			parent.opener.location.href="pegawai.php?bagian=<?=$bagian?>";
-    		window.close();
-       	</script>
-   <? 	} 
-   		else 
-		{          ?>
-            <script language="JavaScript">
-            	alert("Gagal menambah data");
-           </script>
-	<?  }
+		if ($result) 
+		{ 
+?>
+			<script language="JavaScript">
+				parent.opener.location.href = "pegawai.php?bagian=<?= $bagian ?>";
+				window.close();
+			</script>
+<?php
+		} 
+		else 
+		{ 
+?>
+			<script language="JavaScript">
+				alert("Gagal menambah data");
+			</script>
+<?php 
+		}
 	}
 }
 ?>
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -315,7 +284,7 @@ function focusNext(elemName, evt) {
 }
 
 function panggil(elem){
-	var lain = new Array('bagian','nip','nama','panggilan','gelar','tempatlahir','tgllahir','blnlahir','thnlahir','agama','suku','identitas','alamat','telpon','handphone','email','keterangan','foto');
+	var lain = new Array('bagian','nip','id_lembaga','nama','panggilan','gelar','tempatlahir','tgllahir','blnlahir','thnlahir','agama','suku','identitas','alamat','telpon','handphone','email','keterangan','foto');
 	for (i=0;i<lain.length;i++) {
 		if (lain[i] == elem) {
 			document.getElementById(elem).style.background='#4cff15';
@@ -533,7 +502,42 @@ function cek() {
             </option>
        	<?	}  ?>
         </select></td>
+		
   	</tr>
+	<tr>
+    <td><strong>Lembaga</strong></td>
+    <td colspan="2" width="60%">
+        <select name="id_lembaga" id="id_lembaga" style="width: 135px;" onKeyPress="return focusNext('replid', event)" onFocus="panggil('Lembaga')" required>
+			<option value=""required>[Pilih Lembaga]</option>
+            <?php
+            $dblembaga = "SELECT * FROM jbsumum.identitas";
+            $reslembaga = QueryDb($dblembaga);
+
+            // Optional: ambil nilai default pilihan sebelumnya
+            $lembaga = isset($lembaga) ? $lembaga : "";
+
+            while ($openlembaga = mysqli_fetch_array($reslembaga)) {
+                // Ambil nama departemen terkait
+                $id_departemen = $openlembaga['id_departemen'];
+                $sqlDep = "SELECT departemen FROM jbsakad.departemen WHERE replid = '$id_departemen'";
+                $resDep = QueryDb($sqlDep);
+                $depName = "";
+                if ($rowDep = mysqli_fetch_array($resDep)) {
+                    $depName = $rowDep['departemen'];
+                }
+
+                // Tampilkan pilihan dengan nama lembaga dan departemen
+                $namaLembaga = $openlembaga['nama'];
+                $replid = $openlembaga['replid'];
+                $selected = StringIsSelected($replid, $lembaga);
+				
+                echo "<option value='$replid' $selected>$namaLembaga [$depName]</option>";
+            }
+            ?>
+        </select>
+    </td>
+</tr>
+
     <tr>
     	<td><strong>NIP</strong></td>
         <td colspan="2"><input type="text" name="nip" id="nip" value="<?=$nip?>"  onKeyPress="return focusNext('nama',event)" onFocus="showhint('NIP tidak boleh kosong!', this, event, '100px');panggil('nip')" maxlength="20"/></td>

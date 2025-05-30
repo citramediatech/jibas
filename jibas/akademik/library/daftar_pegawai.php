@@ -87,12 +87,12 @@ if (isset($_REQUEST['urutan']))
     
 	OpenDb();
     
-    $sql_tot = "SELECT nip, nama, bagian FROM jbssdm.pegawai WHERE aktif = 1 $sql_tambahbag GROUP BY nip ORDER BY nama";
+    $sql_tot = "SELECT nip, id_lembaga, nama, bagian FROM jbssdm.pegawai WHERE aktif = 1 $sql_tambahbag GROUP BY nip ORDER BY nama";
 	$result_tot = QueryDb($sql_tot);
 	$total = ceil(mysqli_num_rows($result_tot)/(int)$varbaris);
 	$jumlah = mysqli_num_rows($result_tot);
 	
-	$sql_pegawai = "SELECT nip, nama, bagian FROM jbssdm.pegawai WHERE aktif = 1 $sql_tambahbag GROUP BY nip ORDER BY $urut $urutan LIMIT ".(int)$page*(int)$varbaris.",$varbaris";
+	$sql_pegawai = "SELECT nip,id_lembaga, nama, bagian FROM jbssdm.pegawai WHERE aktif = 1 $sql_tambahbag GROUP BY nip ORDER BY $urut $urutan LIMIT ".(int)$page*(int)$varbaris.",$varbaris";
 	//$sql = "SELECT p.nip, p.nama, p.bagian FROM jbssdm.pegawai p WHERE p.aktif = 1 $sql_tambahbag GROUP BY p.nip ORDER BY p.nama";
    	
 	$akhir = ceil($jumlah/5)*5;
@@ -104,6 +104,7 @@ if (isset($_REQUEST['urutan']))
     <table width="100%" id="table" class="tab" border="1" align="center" cellpadding="2" cellspacing="0" bordercolor="#000000">
     <tr height="30" class="header" align="center">
         <td width="7%">No</td>
+		<td width="7%" hidden>ID Lembaga</td>
         <td width="15%" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('nip','<?=$urutan?>','daftar')">N I P <?=change_urut('nip',$urut,$urutan)?></td>
         <td onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('nama','<?=$urutan?>','daftar')">Nama <?=change_urut('nama',$urut,$urutan)?></td>
         <? if ($sql_tambahbag == "") { ?>
@@ -119,15 +120,16 @@ if (isset($_REQUEST['urutan']))
 		
     while($row = mysqli_fetch_row($result)) {
 	?>
-    <tr height="25" onClick="pilih('<?=$row[0]?>', '<?=$row[1]?>')" style="cursor:pointer">
+    <tr height="25" onClick="pilih('<?=$row[0]?>', '<?=$row[2]?>', '<?=$row[1]?>')" style="cursor:pointer">
         <td align="center"><?=++$cnt ?></td>
+		<td align="center" hidden><?=$row[1] ?></td>
         <td align="center"><?=$row[0] ?></td>
-        <td><?=$row[1] ?></td>
+        <td><?=$row[2] ?></td>
         <? if ($sql_tambahbag == "") { ?>				
-		<td align="center" width="15%"><?=$row[2]?></td> 
+		<td align="center" width="15%"><?=$row[3]?></td> 
         <? } ?>		
         <td align="center">
-        <input type="button" name="pilih" class="but" id="pilih" value="Pilih" onClick="pilih('<?=$row[0]?>', '<?=$row[1]?>')" />
+        <input type="button" name="pilih" class="but" id="pilih" value="Pilih" onClick="pilih('<?=$row[0]?>', '<?=$row[2]?>', '<?=$row[1]?>')" />
         </td>
     </tr>
     <? 	} ?>

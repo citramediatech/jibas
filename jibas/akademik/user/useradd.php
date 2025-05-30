@@ -109,6 +109,8 @@ function acceptPegawai(nip,nama) {
 	//document.location.href = "../user/user_add.php?nip="+nip+"&departemen="+dep+"&nama="+nama;	
 	document.getElementById('nip').value=nip;
 	document.getElementById('nip1').value=nip;
+	document.getElementById('id_lembaga').value=id_lembaga;
+	document.getElementById('id_lembaga1').value=id_lembaga;
 	document.getElementById('nama').value=nama;
 	document.getElementById('nama1').value=nama;
 	pwd_check(nip);
@@ -204,7 +206,9 @@ function cek_form()
     <td width="80"><strong>Login</strong></td>
     <td width="1025"><input type="text" size="10" name="nip1" id="nip1" readonly value="<?=$_REQUEST['nip'] ?>" class="disabled" onClick="caripegawai()">&nbsp;<input type="text" size="30" name="nama1" id="nama1" readonly value="<?=$_REQUEST['nama']?>" class="disabled" onClick="caripegawai()">
     	<input type="hidden" name="nip" id="nip" value="<?=$_REQUEST['nip']?>">
+		<input type="hidden" name="id_lembaga" id="id_lembaga" value="<?=$_REQUEST['id_lembaga']?>">
         <input type="hidden" name="nama" id="nama" value="<?=$_REQUEST['nama']?>"><a href="#" onClick="caripegawai()"><img src="../images/ico/cari.png" border="0" onMouseOver="showhint('Cari pegawai',this, event, '100px')"></a>
+		
     </td>
 </tr>
 <tr>

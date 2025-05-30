@@ -1,26 +1,10 @@
-<?
-/**[N]**
+<?php
+/**
  * JIBAS Education Community
  * Jaringan Informasi Bersama Antar Sekolah
- * 
  * @version: 32.0 (Feb 05, 2025)
- * @notes: 
- * 
- * Copyright (C) 2024 JIBAS (http://www.jibas.net)
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- **[N]**/ ?>
-<?
+ */
+
 require_once("../include/theme.php");
 require_once('../include/errorhandler.php');
 require_once('../include/db_functions.php');
@@ -30,31 +14,28 @@ require_once('../include/config.php');
 require_once('../cek.php');
 
 OpenDb();
-$departemen = "";
-if (isset($_REQUEST['departemen']))
-	$departemen = $_REQUEST['departemen'];
 
-//Ini tuk ngecek user sudah punya login apa belum
-$sql_cek = "SELECT * FROM jbsuser.login WHERE login = '$_REQUEST[nip]'";
+$departemen = isset($_REQUEST['departemen']) ? $_REQUEST['departemen'] : '';
+$id_lembaga = isset($_REQUEST['id_lembaga']) ? $_REQUEST['id_lembaga'] : '';
+$nip = isset($_REQUEST['nip']) ? $_REQUEST['nip'] : '';
+
+// Cek apakah user sudah punya login
+$nip_escaped = mysqli_real_escape_string($GLOBALS['db_link'], $nip);
+
+$sql_cek = "SELECT * FROM jbsuser.login WHERE login = '$nip_escaped'";
 $res_cek = QueryDb($sql_cek);
-$jum_cek = @mysqli_num_rows($res_cek);
+$jum_cek = mysqli_num_rows($res_cek);
 
-$query_cek2 = "SELECT * FROM jbsuser.hakakses WHERE login = '$_REQUEST[nip]' AND modul='SIMAKA'";
+$query_cek2 = "SELECT * FROM jbsuser.hakakses WHERE login = '$nip_escaped' AND modul='SIMAKA'";
 $result_cek2 = QueryDb($query_cek2);
-$num_cek2 = @mysqli_num_rows($result_cek2);
-$row_cek2 = @mysqli_fetch_array($result_cek2);
-$dd1 = "";
-if($jum_cek == 0) {
-	$dis = "";
-	
-} else {
-	$status_user=$row_cek2['tingkat'];
-	$keterangan=$row_cek2['keterangan'];
-	$dis = "disabled='disabled' class='disabled' value='*******'";
-	
-	if ($status_user == 1) 
-		$dd1 = "disabled";
-}
+$num_cek2 = mysqli_num_rows($result_cek2);
+$row_cek2 = ($num_cek2 > 0) ? mysqli_fetch_array($result_cek2) : [];
+
+$status_user = isset($row_cek2['tingkat']) ? $row_cek2['tingkat'] : '';
+$keterangan = isset($row_cek2['keterangan']) ? $row_cek2['keterangan'] : '';
+$dis = ($jum_cek > 0) ? "disabled='disabled' class='disabled' value='*******'" : '';
+$dd1 = ($status_user == 1) ? "disabled" : "";
+
 
 if (isset($_REQUEST['simpan'])) {
 	OpenDb();
@@ -85,19 +66,19 @@ if (isset($_REQUEST['simpan'])) {
 		if ($tingkat==1){
 			//Kalo manajer
 			if ($num_cek == 0) {
-				$sql_login="INSERT INTO jbsuser.login SET login='$_REQUEST[nip]', password='$pass', aktif=1";
+				$sql_login="INSERT INTO jbsuser.login SET  login='$_REQUEST[nip]', password='$pass',  id_lembaga='$_REQUEST[id_lembaga]',aktif=1";
 				QueryDbTrans($sql_login, $success);		
 			}		
 				
-			$sql_hakakses="INSERT INTO jbsuser.hakakses SET login='$_REQUEST[nip]', tingkat=1, modul='SIMAKA', keterangan='".CQ($_REQUEST['keterangan'])."'";
+			$sql_hakakses="INSERT INTO jbsuser.hakakses SET  login='$_REQUEST[nip]', id_lembaga='$_REQUEST[id_lembaga]', tingkat=1, modul='SIMAKA', keterangan='".CQ($_REQUEST['keterangan'])."'";
 		} elseif ($tingkat==2){
 			//Kalo staf
 			if ($num_cek == 0) {
-				$sql_login="INSERT INTO jbsuser.login SET login='$_REQUEST[nip]', password='$pass', aktif=1";
+				$sql_login="INSERT INTO jbsuser.login SET  login='$_REQUEST[nip]', password='$pass',id_lembaga='$_REQUEST[id_lembaga]', aktif=1";
 				QueryDbTrans($sql_login, $success);		
 			}			
 			
-			$sql_hakakses="INSERT INTO jbsuser.hakakses SET login='$_REQUEST[nip]', departemen='$_REQUEST[departemen]', tingkat=2, modul='SIMAKA', keterangan='".CQ($_REQUEST['keterangan'])."'";
+			$sql_hakakses="INSERT INTO jbsuser.hakakses SET login='$_REQUEST[nip]', id_lembaga='$_REQUEST[id_lembaga]', departemen='$_REQUEST[departemen]', tingkat=2, modul='SIMAKA', keterangan='".CQ($_REQUEST['keterangan'])."'";
 		}
 		if ($success)	
 			QueryDbTrans($sql_hakakses, $success);
@@ -274,6 +255,7 @@ function panggil(elem){
 </tr>
 <tr>
     <td width="20%"><strong>Login</strong></td>
+
     <td><input type="text" size="10" name="nip1" readonly value="<?=$_REQUEST['nip'] ?>" class="disabled" onClick="caripegawai()">&nbsp;<input type="text" size="30" name="nama1" readonly value="<?=$_REQUEST['nama']?>" class="disabled" onClick="caripegawai()">
     	<input type="hidden" name="nip" id="nip" value="<?=$_REQUEST['nip']?>">
         <input type="hidden" name="nama" id="nama" value="<?=$_REQUEST['nama']?>"><a href="#" onClick="caripegawai()"><img src="../images/ico/cari.png" border="0" onMouseOver="showhint('Cari pegawai',this, event, '100px')"></a>
@@ -306,7 +288,11 @@ function panggil(elem){
 	</td>
 </tr>
 <tr>
+<td><input type="text" name="id_departemen" value="<?=$id_departemen;?>"></td>	
+</tr>
+<tr>
     <td><strong>Departemen</strong></td>
+	
     <td><select name="departemen" style="width:165px;" id="tt" <?=$dd ?> onKeyPress="return focusNext('keterangan', event)" onFocus="panggil('tt')">
     <?  if ($status_user == 1 || $status_user == ""){	
     		echo "<option value='' selected='selected'>Semua</option>";

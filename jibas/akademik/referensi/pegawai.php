@@ -253,7 +253,7 @@ function exel()
     	</select></td>  
 	<?
 		if ($bagian != "-1"){
-			$sql_tot = "SELECT * FROM jbssdm.pegawai WHERE bagian='$bagian' ORDER BY replid";
+			$sql_tot = "SELECT * FROM jbssdm.pegawai WHERE bagian='$bagian' ORDER BY replid ASC";
 			$result_tot = QueryDb($sql_tot);
 			$total = ceil(mysqli_num_rows($result_tot)/(int)$varbaris);
 			$jumlah = mysqli_num_rows($result_tot);
@@ -290,51 +290,76 @@ function exel()
         <td width="80" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('nip','<?=$urutan?>')">N I P <?=change_urut('nip',$urut,$urutan)?></td>
         <td width="*" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('nama','<?=$urutan?>')">Nama <?=change_urut('nama',$urut,$urutan)?></td>
         <td width="250" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('tmplahir','<?=$urutan?>')">Tempat Tanggal Lahir <?=change_urut('tmplahir',$urut,$urutan)?></td>
+		<td width="250" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('tmplahir','<?=$urutan?>')">Nama Lembaga <?=change_urut('tmplahir',$urut,$urutan)?></td>
         <td width="103" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('pinpegawai','<?=$urutan?>')">PIN&nbsp;Pegawai&nbsp;<?=change_urut('pinpegawai',$urut,$urutan)?></td>
         <td width="65" onMouseOver="background='../style/formbg2agreen.gif';height=30;" onMouseOut="background='../style/formbg2.gif';height=30;" background="../style/formbg2.gif" style="cursor:pointer;" onClick="change_urut('aktif','<?=$urutan?>')">Status <?=change_urut('aktif',$urut,$urutan)?></td>
         <td width="115">&nbsp;</td>
     </tr>
-	<? 	
-	if ($page==0)
-		$cnt = 1;
-	else 
-		$cnt = (int)$page*(int)$varbaris+1;
-	
-	while ($row_pegawai = mysqli_fetch_array($result_pegawai)) { ?>
+	<?php
+if ($page == 0)
+    $cnt = 1;
+else 
+    $cnt = (int)$page * (int)$varbaris + 1;
+
+while ($row_pegawai = mysqli_fetch_array($result_pegawai)) { 
+    // Ambil data lembaga
+    $sql_lembaga = "SELECT * FROM jbsumum.identitas WHERE replid = '".$row_pegawai['id_lembaga']."'";
+    $res_lembaga = QueryDb($sql_lembaga);
+    $lembaga_row = mysqli_fetch_array($res_lembaga);
+
+    // Ambil data departemen
+    $sql_departemen = "SELECT * FROM jbsakad.departemen WHERE replid = '".$lembaga_row['id_departemen']."'";
+    $res_departemen = QueryDb($sql_departemen);
+    $departemen_row = mysqli_fetch_array($res_departemen);
+?>
     <tr height="25">
-    	<td width="20" align="center"><?=$cnt ?></td>
-        <td align="center"><?=$row_pegawai['nip'] ?></td>
-        <td><?=$row_pegawai['nama'] . " " . $row['nama'] ?></td>
-        <td><?=$row_pegawai['tmplahir'] ?>, <?=format_tgl($row_pegawai['tgllahir']) ?></td>
-        <td width="103" align="center"><?=$row_pegawai['pinpegawai'] ?>&nbsp;
-        <? if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
-        <a href="JavaScript:gantipin('pinpegawai','<?=$row_pegawai['nip']?>')" ><img src="../images/ico/refresh.png" border="0" onMouseOver="showhint('Ganti PIN!', this, event, '70px')"/></a>
-        <? } ?>        </td>    
+        <td width="20" align="center"><?= $cnt ?></td>
+        <td align="center"><?= $row_pegawai['nip'] ?></td>
+        <td><?= $row_pegawai['nama'] ?></td>
+        <td><?= $row_pegawai['tmplahir'] ?>, <?= format_tgl($row_pegawai['tgllahir']) ?></td>
+        <td><?= $departemen_row['departemen'] ?> - <?= $lembaga_row['nama'] ?></td>
+        <td width="103" align="center">
+            <?= $row_pegawai['pinpegawai'] ?>&nbsp;
+            <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
+                <a href="JavaScript:gantipin('pinpegawai','<?= $row_pegawai['nip'] ?>')">
+                    <img src="../images/ico/refresh.png" border="0" onMouseOver="showhint('Ganti PIN!', this, event, '70px')"/>
+                </a>
+            <?php } ?>
+        </td>    
         <td align="center">
-        
-<?		if (SI_USER_LEVEL() == $SI_USER_STAFF) {  
-			if ($row_pegawai['aktif'] == 1) { ?> 
-            	<img src="../images/ico/aktif.png" border="0" onMouseOver="showhint('Status Aktif!', this, event, '80px')"/>
-<?			} else { ?>                
-				<img src="../images/ico/nonaktif.png" border="0" onMouseOver="showhint('Status Tidak Aktif!', this, event, '80px')"/>
-<?			}
-		} else { 
-			if ($row_pegawai['aktif'] == 1) { ?>
-				<a href="JavaScript:setaktif(<?=$row_pegawai['replid'] ?>, <?=$row_pegawai['aktif'] ?>)"><img src="../images/ico/aktif.png" border="0" onMouseOver="showhint('Status Aktif!', this, event, '80px')"/></a>
-<?			} else { ?>
-				<a href="JavaScript:setaktif(<?=$row_pegawai['replid'] ?>, <?=$row_pegawai['aktif'] ?>)"><img src="../images/ico/nonaktif.png" border="0" onMouseOver="showhint('Status Tidak Aktif!', this, event, '80px')"/></a>
-<?			} //end if
-		} //end if ?>        </td>
-        <td align="center"><a href="JavaScript:lihat(<?=$row_pegawai['replid'] ?>)"><img src="../images/ico/lihat.png" border="0" onMouseOver="showhint('Detail Data Pegawai!', this, event, '50x')"/></a>&nbsp;
-        
-<?		if (SI_USER_LEVEL() != $SI_USER_STAFF) {  ?> 
-			<a href="JavaScript:cetak_detail(<?=$row_pegawai['replid'] ?>)" onMouseOver="showhint('Cetak Detail Data Pegawai!', this, event, '100px')"><img src="../images/ico/print.png" border="0" /></a>&nbsp; 
-            <a href="JavaScript:edit(<?=$row_pegawai['replid'] ?>)"><img src="../images/ico/ubah.png" border="0" onMouseOver="showhint('Ubah Data Pegawai!', this, event, '80px')" /></a>&nbsp;
-            <a href="JavaScript:hapus(<?=$row_pegawai['replid'] ?>)"><img src="../images/ico/hapus.png" border="0" onMouseOver="showhint('Hapus Data Pegawai!', this, event, '80px')"/></a>
-<?		} ?>        </td>
+            <?php if (SI_USER_LEVEL() == $SI_USER_STAFF) { ?>
+                <img src="../images/ico/<?= $row_pegawai['aktif'] == 1 ? 'aktif' : 'nonaktif' ?>.png" border="0"
+                     onMouseOver="showhint('Status <?= $row_pegawai['aktif'] == 1 ? 'Aktif' : 'Tidak Aktif' ?>!', this, event, '80px')"/>
+            <?php } else { ?>
+                <a href="JavaScript:setaktif(<?= $row_pegawai['replid'] ?>, <?= $row_pegawai['aktif'] ?>)">
+                    <img src="../images/ico/<?= $row_pegawai['aktif'] == 1 ? 'aktif' : 'nonaktif' ?>.png" border="0"
+                         onMouseOver="showhint('Status <?= $row_pegawai['aktif'] == 1 ? 'Aktif' : 'Tidak Aktif' ?>!', this, event, '80px')"/>
+                </a>
+            <?php } ?>
+        </td>
+        <td align="center">
+            <a href="JavaScript:lihat(<?= $row_pegawai['replid'] ?>)">
+                <img src="../images/ico/lihat.png" border="0" onMouseOver="showhint('Detail Data Pegawai!', this, event, '50x')"/>
+            </a>&nbsp;
+            <?php if (SI_USER_LEVEL() != $SI_USER_STAFF) { ?>
+                <a href="JavaScript:cetak_detail(<?= $row_pegawai['replid'] ?>)" onMouseOver="showhint('Cetak Detail Data Pegawai!', this, event, '100px')">
+                    <img src="../images/ico/print.png" border="0" />
+                </a>&nbsp; 
+                <a href="JavaScript:edit(<?= $row_pegawai['replid'] ?>)">
+                    <img src="../images/ico/ubah.png" border="0" onMouseOver="showhint('Ubah Data Pegawai!', this, event, '80px')" />
+                </a>&nbsp;
+                <a href="JavaScript:hapus(<?= $row_pegawai['replid'] ?>)">
+                    <img src="../images/ico/hapus.png" border="0" onMouseOver="showhint('Hapus Data Pegawai!', this, event, '80px')"/>
+                </a>
+            <?php } ?>
+        </td>
     </tr>
-<?	$cnt++; } 
-CloseDb(); ?>	
+<?php
+    $cnt++; 
+} 
+CloseDb(); 
+?>
+
     
     <!-- END TABLE CONTENT -->
     </table>
